@@ -9,7 +9,10 @@ const runSeed = () => {
       return db.end();
     })
     .catch((err) => {
-      console.log(err, "Seeding");
+
+
+      console.log(err, "Seeding err");
+
     })
 };
 runSeed();
