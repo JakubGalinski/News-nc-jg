@@ -9,9 +9,11 @@ const runSeed = () => {
       return db.end();
     })
     .catch((err) => {
+
+
       console.log(err, "Seeding err");
+
     })
 };
-
 runSeed();
 module.exports = runSeed;
