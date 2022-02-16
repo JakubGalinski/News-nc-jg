@@ -54,7 +54,7 @@ describe('GET - requests testing', () => {
                 .expect(200)
                 .then((response) => {
                     const article = response.body.article;
-                    expect(article[0]).toEqual(expect.objectContaining({
+                    expect(article).toEqual(expect.objectContaining({
                         article_id: 1,
                         title: expect.any(String),
                         topic: expect.any(String),
