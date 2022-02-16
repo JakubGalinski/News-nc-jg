@@ -67,19 +67,35 @@ describe('GET - requests testing', () => {
         });
         test('Returns 404 - for valid but non existend Id ', () => {
             return request(app)
-            .get("/api/articles/666")
-            .expect(404)
-            .then(({body: {msg}})=> {
-                expect(msg).toBe("Id non existent")
-            })
+                .get("/api/articles/666")
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Id non existent")
+                })
         });
         test('Returns 404 - for valid but non existend Id ', () => {
             return request(app)
-            .get("/api/articles/banan")
-            .expect(400)
-            .then(({body: {msg}})=> {
-                expect(msg).toBe("Bad request")
-            })
+                .get("/api/articles/banan")
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+        });
+    });
+    describe('GET /api/users', () => {
+        test('Responds with: an array of objects, each object should have the following property: username ', () => {
+            return request(app)
+                .get("/api/users")
+                .expect(200)
+                .then(({body: {users}}) => {
+                    users.forEach((user) => {
+                        expect(user).toEqual(expect.objectContaining(
+                            {
+                                username: expect.any(String)
+                            }))
+                    })
+                })
         });
     });
 });
+

@@ -1,4 +1,4 @@
-const { fetchTopics, fetchArticleById } = require("../models/get-models")
+const { fetchTopics, fetchArticleById, fetchAllUsers } = require("../models/get-models")
 
 
 exports.getTopics = (req, res, next) => {
@@ -9,7 +9,7 @@ exports.getTopics = (req, res, next) => {
         .catch((err) => {
             console.log(err, "Controller catch err log");
             next(err);
-        })
+        });
 }
 
 exports.getArticleById = (req, res, next) => {
@@ -22,4 +22,16 @@ exports.getArticleById = (req, res, next) => {
             console.log(err, "Controller catch err log");
             next(err);
         });
+}
+
+exports.getAllUsers = (req, res, next) => {
+    // console.log(req, "param");
+    // console.log("controlers");
+    fetchAllUsers()
+    .then((users) =>{
+        res.status(200).send({ users: users })
+    }).catch((err) => {
+        console.log(err, "Controller catch err log");
+        next(err);
+    });
 }
