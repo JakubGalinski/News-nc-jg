@@ -11,6 +11,8 @@ afterAll(() => { if (db.end) db.end() })
 
 beforeEach(() => seed(data));
 
+
+// ------ Global 404 - error handler ------
 describe('Global Error 404 handling testing for all endpoints', () => {
     test('Returns 404 status - with msg: "Path not found" for incorect path provided by the client', () => {
         return request(app)
@@ -21,6 +23,8 @@ describe('Global Error 404 handling testing for all endpoints', () => {
             })
     });
 });
+
+// ------ GET - methods ------
 describe('GET - requests testing', () => {
     describe('GET - /api/topics', () => {
         test('Testing for succesful path', () => {
@@ -117,4 +121,101 @@ describe('GET - requests testing', () => {
         });
     });
 
+});
+
+// ------ PATCH - methods ------
+describe('PATCH requests testing', () => {
+    describe('PATCH - /api/articles/:article_id', () => {
+        // variable to use while testing on this whole endpoint 200 + 400s... paths
+        const incrementArticleVotesBy =
+        {
+            inc_votes: 11
+        }
+        test("Responds with: the updated article. Request body accepts: an object in the form { inc_votes: newVote } newVote will indicate how much the votes property in the database should be updated by e.g. { inc_votes : 1 } would increment the current article's vote property by 1 { inc_votes : -100 } would decrement the current article's vote property by 100", () => {
+
+            return request(app)
+                .patch("/api/articles/1")
+                .send(incrementArticleVotesBy)
+                .expect(200)
+                .then(({ body: { article } }) => {
+                    expect(article).toEqual(expect.objectContaining({
+                        article_id: 1,
+                        votes: 111,
+                        title: expect.any(String),
+                        body: expect.any(String),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        topic: expect.any(String)
+                    }))
+                })
+        });
+        // ------ error testing /api/articles/:article_id ------
+        // ------ 404 /* is handled globaly -app, 500 is handled globaly errors-controlers ------
+
+        test('Error 404 when article_id does not exist in a database', () => {
+            return request(app)
+                .patch('/api/articles/666')
+                .send(incrementArticleVotesBy)
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Not found")
+                })
+        })
+
+
+        test('Error 400 when article_id is not valid ', () => {
+            return request(app)
+                .patch('/api/articles/not-valid-id')
+                .send(incrementArticleVotesBy)
+                .expect(400)
+                .then(({ body: { msg } }) => {
+
+                    expect(msg).toEqual("Bad request");
+                })
+
+        });
+        test('Error 400 when body is empty ', () => {
+            return request(app)
+                .patch('/api/articles/1')
+                .send({})
+                .expect(400)
+                .then(({ body: { msg } }) => {
+
+                    expect(msg).toEqual("Bad request");
+                })
+
+        });
+        test('Error 400 when passed body is not valid', () => {
+            return request(app)
+                .patch('/api/articles/1')
+                .send({
+                    inc_votes: "not-an-id"
+                })
+                .expect(400)
+                .then(({ body: { msg } }) => {
+
+                    expect(msg).toEqual("Bad request");
+                })
+
+        })
+        test('Error 400 when passed body has more than 1 {}', () => {
+            return request(app)
+                .patch('/api/articles/1')
+                .send(
+                    [{
+                        inc_votes: 11
+                    },
+                    {
+                        inc_votes: 12
+                    }]
+                )
+                .expect(400)
+                .then(({ body: { msg } }) => {
+
+                    console.log(msg, "MSSSSG");
+                    expect(msg).toEqual("Bad request");
+                })
+
+        })
+    });
 });
