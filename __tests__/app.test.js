@@ -3,7 +3,7 @@ const app = require("../app");
 const seed = require("../db/seeds/seed");
 const data = require("../db/index");
 const db = require("../db/connection");
-const { response } = require("../app");
+
 
 
 
@@ -87,7 +87,7 @@ describe('GET - requests testing', () => {
             return request(app)
                 .get("/api/users")
                 .expect(200)
-                .then(({body: {users}}) => {
+                .then(({ body: { users } }) => {
                     users.forEach((user) => {
                         expect(user).toEqual(expect.objectContaining(
                             {
@@ -97,5 +97,24 @@ describe('GET - requests testing', () => {
                 })
         });
     });
-});
+    describe('GET - /api/articles', () => {
+        test('Responds with: an articles array of article objects, each of which should have the following properties: author which is the username from the users table title article_id topic created_at votes the articles should be sorted by date in descending order.', () => {
+            return request(app)
+                .get("/api/articles")
+                .expect(200)
+                .then(({ body: { articles } }) => {
+                    articles.forEach((article) => {
+                        expect(article).toEqual(expect.objectContaining({
+                            title: expect.any(String),
+                            topic: expect.any(String),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number)
+                        }))
+                    })
+                })
+        });
+    });
 
+});
