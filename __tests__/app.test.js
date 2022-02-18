@@ -3,6 +3,7 @@ const app = require("../app");
 const seed = require("../db/seeds/seed");
 const data = require("../db/index");
 const db = require("../db/connection");
+const { response } = require("../app");
 
 
 
@@ -19,12 +20,12 @@ describe('Global Error 404 handling testing for all endpoints', () => {
             .get('/not-a-valid-endpoint')
             .expect(404)
             .then(({ body: { msg } }) => {
-                expect(msg).toBe("Path not found.")
+                expect(msg).toBe("Path not found")
             })
     });
 });
 
-// ------ GET - methods ------
+// ------ GET - requests testing------
 describe('GET - requests testing', () => {
     describe('GET - /api/topics', () => {
         test('Testing for succesful path', () => {
@@ -123,8 +124,8 @@ describe('GET - requests testing', () => {
 
 });
 
-// ------ PATCH - methods ------
-describe('PATCH requests testing', () => {
+// ------ PATCH - requests testing ------
+describe('PATCH - requests testing', () => {
     describe('PATCH - /api/articles/:article_id', () => {
         // variable to use while testing on this whole endpoint 200 + 400s... paths
         const incrementArticleVotesBy =
@@ -212,10 +213,147 @@ describe('PATCH requests testing', () => {
                 .expect(400)
                 .then(({ body: { msg } }) => {
 
-                    console.log(msg, "MSSSSG");
                     expect(msg).toEqual("Bad request");
                 })
 
+        })
+    });
+});
+
+// ------ POST - request testing------
+
+describe('POST request testing', () => {
+    describe('POST - /api/articles/:article_id/comments', () => {
+        // object to send as body in tests for this endpoint
+        const requestConntentToPost =
+        {
+            username: 'lurker',
+            body: 'Just looking'
+        }
+        test('Request body accepts: an object with the following properties: username, body. Responds with: the posted comment', () => {
+
+
+            return request(app)
+                .post("/api/articles/1/comments")
+                .send(requestConntentToPost)
+                .expect(200)
+                .then(({ body: { comment } }) => {
+                    expect(comment).toEqual(expect.objectContaining({
+                        comment_id: expect.any(Number),
+                        votes: 0,
+                        author: 'lurker',
+                        body: 'Just looking',
+                        created_at: expect.any(String),
+                        article_id: 1
+                    }))
+                })
+        });
+
+        test('Error 404 when wrong path been passed ', () => {
+            return request(app).post('/api/articles/3/not-valid-path')
+                .send(requestConntentToPost)
+                .expect(404)
+                .then((({ body: { msg } }) => {
+
+                    expect(msg).toEqual("Path not found");
+                }))
+
+        })
+
+        test('Error 404 when article_id does not exist in a database', () => {
+            return request(app)
+                .post('/api/articles/666/comments')
+                .send(requestConntentToPost)
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+        })
+
+        test('Error 400 when article_id is not valid ', () => {
+            return request(app)
+                .post('/api/articles/not-valid-id/comments')
+                .send(requestConntentToPost)
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+
+        });
+
+        test('Error 400 when passed body is empty ', () => {
+            return request(app).
+                post('/api/articles/3/comments')
+                .send({})
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+
+
+        })
+
+        test('Error 400 when passed body has only one property ', () => {
+            return request(app)
+                .post('/api/articles/3/comments')
+                .send(
+                    {
+                        body: 'Just looking'
+                    })
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+
+        })
+
+        test('Error 400 when passed body has more then two properties ', () => {
+            return request(app)
+                .post('/api/articles/3/comments')
+                .send(
+                    {
+                        username: 'lurker',
+                        body: 'Just looking',
+                        num: 11
+                    }
+                )
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+
+        })
+
+        test('Error 400 when username value is not a string ', () => {
+            return request(app)
+                .post('/api/articles/3/comments')
+                .send(
+                    {
+                        username: 33,
+                        body: 'Just looking',
+                    }
+                )
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+
+
+        })
+
+        test('Error 400 when passed body value is not a string ', () => {
+            return request(app)
+                .post('/api/articles/3/comments')
+                .send(
+                    {
+                        username: 33,
+                        body: 'Just looking',
+                    }
+                )
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
         })
     });
 });
