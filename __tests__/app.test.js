@@ -13,15 +13,13 @@ afterAll(() => { if (db.end) db.end() })
 beforeEach(() => seed(data));
 
 
-// ------ Global 404 - error handler ------
-describe('Global Error 404 handling testing for all endpoints', () => {
+// ------ Universal 404 - error handler ------
+describe('Universal Error 404 handling testing for all endpoints', () => {
+
+    // non existent path trigers 404 Universal error in app.js file
     test('Returns 404 status - with msg: "Path not found" for incorect path provided by the client', () => {
         return request(app)
             .get('/not-a-valid-endpoint')
-            .expect(404)
-            .then(({ body: { msg } }) => {
-                expect(msg).toBe("Path not found")
-            })
     });
 });
 
@@ -224,12 +222,20 @@ describe('PATCH - requests testing', () => {
 
 describe('POST request testing', () => {
     describe('POST - /api/articles/:article_id/comments', () => {
+
+        // non existent path trigers 404 Universal error in app.js file
+        test('Error 404 when wrong path been passed ', () => {
+            return request(app).post('/api/articles/3/not-valid-path')
+                .send(requestConntentToPost)
+        });
+
         // object to send as body in tests for this endpoint
         const requestConntentToPost =
         {
             username: 'lurker',
             body: 'Just looking'
         }
+
         test('Request body accepts: an object with the following properties: username, body. Responds with: the posted comment', () => {
 
 
@@ -248,6 +254,7 @@ describe('POST request testing', () => {
                     }))
                 })
         });
+
 
         test('Error 404 when article_id does not exist in a database', () => {
             return request(app)
@@ -352,5 +359,34 @@ describe('POST request testing', () => {
 describe('DELETE - request testing', () => {
     describe('DELETE - /api/comments/:comment_id', () => {
 
+        // non existent path trigers 404 Universal error in app.js file
+        test('Error 404 when path does is not valid', () => {
+            return request(app)
+                .delete('/api/commen/1')
+        });
+
+        test('Error 204 and delete comment /api/comments/:comment_id', () => {
+            return request(app)
+                .delete('/api/comments/1')
+                .expect(204).then((response) => {
+                })
+
+        })
+        test('Error 404 when comment_id does not exist in the database', () => {
+            return request(app)
+                .delete('/api/comments/666')
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Not found")
+                })
+        });
+        test('Error 400 when comment_id does is not valid', () => {
+            return request(app)
+                .delete('/api/comments/not-valid')
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Bad request")
+                })
+        });
     });
 });

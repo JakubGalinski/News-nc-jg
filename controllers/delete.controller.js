@@ -1,12 +1,10 @@
 
 
-const { removeCommentById } = require('../models/delete-models');
+const { removeCommentById } = require('../models/delete-models.js');
 
 exports.deleteCommentById = ((req, res, next) => {
 
-    console.log(req.params, "control");
     const id = parseInt(req.params.comment_id);
-
     removeCommentById(id).then((comment) => {
 
         res.status(204).send();

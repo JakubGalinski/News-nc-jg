@@ -39,6 +39,8 @@ app.patch("/api/articles/:article_id", patchArticleVotesById)
 
 app.post('/api/articles/:article_id/comments', postCommentsByArticleId);
 
+// ------ DELETE requests ------
+
 app.delete('/api/comments/:comment_id', deleteCommentById)
 
 
