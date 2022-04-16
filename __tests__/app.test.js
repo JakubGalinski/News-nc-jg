@@ -259,13 +259,13 @@ describe('POST request testing', () => {
                 })
         })
 
-        test('Error 400 when article_id is not valid ', () => {
+        test('Error 500 when article_id is not valid ', () => {
             return request(app)
-                .post('/api/articles/not-valid-id/comments')
+                .post('/api/articles/asa/comments')
                 .send(requestConntentToPost)
-                .expect(400)
+                .expect(500)
                 .then(({ body: { msg } }) => {
-                    expect(msg).toBe("Bad request")
+                    expect(msg).toBe("Server Error")
                 })
 
         });

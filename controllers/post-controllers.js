@@ -1,5 +1,8 @@
 const { insertCommentsByArticleId } = require("../models/post-models");
 
+
+
+
 exports.postCommentsByArticleId = ((req, res, next) => {
 
     const articleId = req.params.article_id;
