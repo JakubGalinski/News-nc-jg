@@ -255,7 +255,6 @@ describe('POST request testing', () => {
                 })
         });
 
-
         test('Error 404 when article_id does not exist in a database', () => {
             return request(app)
                 .post('/api/articles/666/comments')
