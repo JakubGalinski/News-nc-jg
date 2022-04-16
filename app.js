@@ -10,6 +10,10 @@ const { patchArticleVotesById } = require("./controllers/patch-controllers");
 // ------ POST ------
 const { postCommentsByArticleId } = require("./controllers/post-controllers");
 
+// ------ DELETE ------
+const { deleteCommentById } = require("./controllers/delete.controller");
+
+
 // ------ ERROR ------
 const { handleCustomErrors, handle500Error, handleSqlErrors } = require("./controllers/errors-controllers");
 
@@ -35,7 +39,9 @@ app.patch("/api/articles/:article_id", patchArticleVotesById)
 
 app.post('/api/articles/:article_id/comments', postCommentsByArticleId);
 
+// ------ DELETE requests ------
 
+app.delete('/api/comments/:comment_id', deleteCommentById)
 
 
 // ------ ERROR requests ------
