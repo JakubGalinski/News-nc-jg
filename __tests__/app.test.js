@@ -249,17 +249,6 @@ describe('POST request testing', () => {
                 })
         });
 
-        test('Error 404 when wrong path been passed ', () => {
-            return request(app).post('/api/articles/3/not-valid-path')
-                .send(requestConntentToPost)
-                .expect(404)
-                .then((({ body: { msg } }) => {
-
-                    expect(msg).toEqual("Path not found");
-                }))
-
-        })
-
         test('Error 404 when article_id does not exist in a database', () => {
             return request(app)
                 .post('/api/articles/666/comments')
@@ -274,9 +263,9 @@ describe('POST request testing', () => {
             return request(app)
                 .post('/api/articles/not-valid-id/comments')
                 .send(requestConntentToPost)
-                .expect(400)
+                .expect(500)
                 .then(({ body: { msg } }) => {
-                    expect(msg).toBe("Bad request")
+                    expect(msg).toBe("Server Error")
                 })
 
         });
@@ -347,7 +336,7 @@ describe('POST request testing', () => {
                 .send(
                     {
                         username: 33,
-                        body: 'Just looking',
+                        body: 22,
                     }
                 )
                 .expect(400)
