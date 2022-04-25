@@ -57,14 +57,16 @@ describe('GET - requests testing', () => {
                 .expect(200)
                 .then((response) => {
                     const article = response.body.article;
+                    // console.log('article', article)
                     expect(article).toEqual(expect.objectContaining({
-                        article_id: 1,
+                        article_id: expect.any(Number),
                         title: expect.any(String),
                         topic: expect.any(String),
                         author: expect.any(String),
                         body: expect.any(String),
                         created_at: expect.any(String),
                         votes: expect.any(Number),
+                        comment_count: expect.any(String),
                     }))
                 })
         });
@@ -113,7 +115,7 @@ describe('GET - requests testing', () => {
                             author: expect.any(String),
                             body: expect.any(String),
                             created_at: expect.any(String),
-                            votes: expect.any(Number)
+                            votes: expect.any(Number),
                         }))
                     })
                 })
