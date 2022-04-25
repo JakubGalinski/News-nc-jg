@@ -9,7 +9,11 @@ exports.fetchTopicsAll = () => {
 }
 
 exports.fetchArticlesAll = () => {
-    return db.query('SELECT * FROM articles;')
+
+    const str = `SELECT articles.*, CAST(COUNT(comments.article_id)AS INT) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;`
+
+    return db.query(str)
+
         .then(({ rows }) => {
             return rows
         })
