@@ -120,6 +120,52 @@ describe('GET - requests testing', () => {
         });
     });
 
+    describe('GET /api/articles/:article_id/comments', () => {
+        test('Returns: 200, Returns array of comments for given article_id', () => {
+            return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(({ body: comments }) => {
+                    comments.forEach((comment) => {
+                        expect(comment).toEqual(
+                            expect.objectContaining({
+                                comment_id: expect.any(Number),
+                                votes: expect.any(Number),
+                                created_at: expect.any(String),
+                                author: expect.any(String),
+                                body: expect.any(String),
+                            })
+                        );
+                    })
+                });
+        })
+
+        // non existent path trigers 404 Universal error in app.js file
+        test('Error 404 when wrong path been passed ', () => {
+            return request(app)
+                .get('/api/articles/1/not-valid-path')
+        });
+
+        test('Error 400 request when given invalid article_id', () => {
+            return request(app)
+                .get('/api/articles/not-valid-id/comments')
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe('Bad Request');
+                });
+        });
+
+        test('/api/articles/article:id/comments responds error 404 when article_id does not exist in the database', () => {
+            return request(app)
+                .get('/api/articles/666/comments')
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Not found")
+                })
+        })
+    });
+
+
 });
 
 // ------ PATCH - requests testing ------
@@ -225,8 +271,13 @@ describe('POST request testing', () => {
 
         // non existent path trigers 404 Universal error in app.js file
         test('Error 404 when wrong path been passed ', () => {
-            return request(app).post('/api/articles/3/not-valid-path')
+            return request(app)
+                .post('/api/articles/3/not-valid-path')
                 .send(requestConntentToPost)
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Path not found")
+                })
         });
 
         // object to send as body in tests for this endpoint
@@ -255,7 +306,7 @@ describe('POST request testing', () => {
                 })
         });
 
-        test('Error 404 when article_id does not exist in a database', () => {
+        test('Error 400 when article_id does not exist in a database', () => {
             return request(app)
                 .post('/api/articles/666/comments')
                 .send(requestConntentToPost)
@@ -267,13 +318,12 @@ describe('POST request testing', () => {
 
         test('Error 500 when article_id is not valid ', () => {
             return request(app)
-                .post('/api/articles/asa/comments')
+                .post('/api/articles/not-valid-id/comments')
                 .send(requestConntentToPost)
                 .expect(500)
                 .then(({ body: { msg } }) => {
                     expect(msg).toBe("Server Error")
                 })
-
         });
 
         test('Error 400 when passed body is empty ', () => {
@@ -362,6 +412,10 @@ describe('DELETE - request testing', () => {
         test('Error 404 when path does is not valid', () => {
             return request(app)
                 .delete('/api/commen/1')
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe("Path not found")
+                })
         });
 
         test('Error 204 and delete comment /api/comments/:comment_id', () => {
