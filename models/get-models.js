@@ -16,9 +16,12 @@ exports.fetchArticlesAll = () => {
 }
 
 exports.fetchArticleById = (articleId) => {
+
     const id = parseInt(articleId)
+
     if (Number.isNaN(id)) { return Promise.reject({ status: 400, msg: "Bad request" }) }
-    const str = `SELECT * FROM articles WHERE article_id = $1;`;
+
+    const str = 'SELECT articles.*, COUNT(articles.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;';
     return db.query(str, [id])
         .then(({ rows }) => {
             if (rows.length === 0)
