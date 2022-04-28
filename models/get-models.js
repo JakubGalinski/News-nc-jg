@@ -8,14 +8,41 @@ exports.fetchTopicsAll = () => {
         })
 }
 
-exports.fetchArticlesAll = () => {
+exports.fetchArticlesAll = (sortby = 'created_at', order = 'DESC', topic) => {
 
-    const str = `SELECT articles.*, CAST(COUNT(comments.article_id)AS INT) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;`
+    const validOrder = ['ASC', 'DESC'];
+
+    if (!validOrder.includes(order)) {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+    }
+
+    const validSortBy = ['created_at', 'article_id', 'votes', 'comment_count'];
+
+    if (!validSortBy.includes(sortby)) {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+    }
+
+    let str = `SELECT articles.*, COUNT(comments.article_id) AS comment_count FROM articles
+               LEFT JOIN comments ON comments.article_id = articles.article_id`
+
+    if (topic !== undefined) str += ` WHERE articles.topic = '${topic}'`
+
+    str += ` GROUP BY articles.article_id`
+
+    if (sortby !== "comment_count")
+        str += ` ORDER BY articles.${sortby} ${order};`;
+    else {
+        str += ` ORDER BY COUNT(comments.article_id) ${order};`
+    }
 
     return db.query(str)
-
         .then(({ rows }) => {
-            return rows
+
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Not found" });
+            }
+
+            return rows;
         })
 }
 
@@ -29,7 +56,7 @@ exports.fetchArticleById = (articleId) => {
     return db.query(str, [id])
         .then(({ rows }) => {
             if (rows.length === 0)
-                return Promise.reject({ status: 404, msg: "Id non existent" });
+                return Promise.reject({ status: 404, msg: "Not found" });
             return rows[0]
         })
 }
