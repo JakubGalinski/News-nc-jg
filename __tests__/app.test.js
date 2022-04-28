@@ -69,17 +69,17 @@ describe('GET - requests testing', () => {
                     }))
                 })
         });
-        test('Returns 404 - for valid but non existend Id ', () => {
+        test('Error 404 - for valid but non existend Id ', () => {
             return request(app)
                 .get("/api/articles/666")
                 .expect(404)
                 .then(({ body: { msg } }) => {
-                    expect(msg).toBe("Id non existent")
+                    expect(msg).toBe("Not found")
                 })
         });
-        test('Returns 404 - for valid but non existend Id ', () => {
+        test('Error 404 - for valid but non existend Id ', () => {
             return request(app)
-                .get("/api/articles/banan")
+                .get("/api/articles/banana")
                 .expect(400)
                 .then(({ body: { msg } }) => {
                     expect(msg).toBe("Bad request")
@@ -101,6 +101,8 @@ describe('GET - requests testing', () => {
                 })
         });
     });
+
+
     describe('GET - /api/articles', () => {
         test('Responds with: an articles array of article objects, each of which should have the following properties: author which is the username from the users table title article_id topic created_at votes the articles should be sorted by date in descending order.', () => {
             return request(app)
@@ -116,12 +118,65 @@ describe('GET - requests testing', () => {
                             body: expect.any(String),
                             created_at: expect.any(String),
                             votes: expect.any(Number),
-                            comment_count: expect.any(Number),
+                            comment_count: expect.any(String),
                         }))
                     })
                 })
         });
     });
+
+    describe('GET - /api/articles?QUERIES', () => {
+
+        test('Returns array sorted by date_created in DESC order by default', () => {
+            return request(app)
+                .get('/api/articles')
+                .expect(200)
+                .then(({ body: { articles } }) => {
+                    expect(articles.length === 0).toBe(false);
+                    expect(articles).toBeSorted({ key: 'created_at', descending: true });
+                });
+        });
+
+        test('Error 404 when topic valid but does not exist', () => {
+            return request(app)
+                .get('/api/articles?topic=validButNotThere')
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe('Not found');
+                });
+        });
+
+        test('Returns array sorted by date_created in DESC order by default', () => {
+            return request(app)
+                .get('/api/articles?sort_by=created_at')
+                .expect(200)
+                .then(({ body: { articles } }) => {
+                    expect(articles.length === 0).toBe(false);
+                    expect(articles).toBeSorted({ key: 'created_at', descending: true });
+                });
+        });
+
+
+        test('Error 400 when there are invalid queries passed', () => {
+            return request(app)
+                .get('/api/articles?sort_by=notValid')
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe('Bad Request');
+                });
+        });
+
+
+        test('Error 400 when there are valid queries passed but are not allowed (greenlisted)', () => {
+            return request(app)
+                .get('/api/articles?order_by=notGreenlistAllowed')
+                .expect(400)
+                .then(({ body: { msg } }) => {
+                    expect(msg).toBe('Bad Request');
+                });
+        });
+    });
+
 
     describe('GET /api/articles/:article_id/comments', () => {
         test('Returns: 200, Returns array of comments for given article_id', () => {

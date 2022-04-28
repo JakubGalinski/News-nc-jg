@@ -13,7 +13,11 @@ exports.getTopicsAll = (req, res, next) => {
 }
 
 exports.getArticlesAll = (req, res, next) => {
-    fetchArticlesAll()
+
+
+    const { sort_by, order_by, topic } = req.query;
+
+    fetchArticlesAll(sort_by, order_by, topic)
         .then((articles) => {
             res.status(200).send({ articles: articles })
         }).catch((err) => {
