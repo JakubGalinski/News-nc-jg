@@ -1,5 +1,15 @@
-const { fetchTopicsAll, fetchArticleById, fetchUsersAll, fetchArticlesAll, fetchAllComentsByArticleId, } = require("../models/get-models");
+const { fetchTopicsAll, fetchArticleById, fetchUsersAll, fetchArticlesAll, fetchAllComentsByArticleId, fetchDocsAPI, } = require("../models/get-models");
 
+exports.getDocsAPI = (req, res, next) => {
+    fetchDocsAPI()
+        .then((docs) => {
+            res.status(200).send({ docs });
+        })
+        .catch((err) => {
+            console.log(err, "Controller catch err log");
+            next(err);
+        });
+}
 
 exports.getTopicsAll = (req, res, next) => {
     fetchTopicsAll()

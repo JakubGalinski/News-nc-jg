@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 
 // ------ GET ------
-const { getTopicsAll, getArticleById, getUsersAll, getArticlesAll, getAllComentsByArticleId } = require("./controllers/get-controllers");
+const { getTopicsAll, getArticleById, getUsersAll, getArticlesAll, getAllComentsByArticleId, getDocsAPI } = require("./controllers/get-controllers");
 
 // ------ PATCH ------
 const { patchArticleVotesById } = require("./controllers/patch-controllers");
@@ -24,14 +24,17 @@ app.use(express.json());
 
 
 // ------ GET requests ------
+app.get("/api/", getDocsAPI);
+
+
 app.get("/api/topics", getTopicsAll);
 
 app.get("/api/articles", getArticlesAll);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/articles/:article_id/comments", getAllComentsByArticleId)
 
 app.get("/api/users", getUsersAll);
 
-app.get("/api/articles/:article_id/comments", getAllComentsByArticleId)
 
 // ------ PATCH requests ------
 
