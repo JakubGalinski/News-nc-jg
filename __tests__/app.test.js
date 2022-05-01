@@ -17,7 +17,7 @@ beforeEach(() => seed(data));
 describe('Universal Error 404 handling testing for all endpoints', () => {
 
     // non existent path trigers 404 Universal error in app.js file
-    test('Returns 404 status - with msg: "Path not found" for incorect path provided by the client', () => {
+    test('Returns 404 status - with msg: "Path not found" for incorect path provided by the client.', () => {
         return request(app)
             .get('/not-a-valid-endpoint')
     });
@@ -25,6 +25,23 @@ describe('Universal Error 404 handling testing for all endpoints', () => {
 
 // ------ GET - requests testing------
 describe('GET - requests testing', () => {
+
+    test('/api returns an object of available endpoints ', () => {
+        return request(app)
+            .get('/api')
+            .expect(200)
+            .then(({ body: { docs } }) => {
+                expect(docs).toEqual(
+                    expect.objectContaining({
+                        'GET Requests': expect.any(Object),
+                        'PATCH Requests': expect.any(Object),
+                        'POST Requests': expect.any(Object),
+                        'DELETE Requests': expect.any(Object),
+                    })
+                );
+            });
+    });
+
     describe('GET - /api/topics', () => {
         test('Testing for succesful path', () => {
             return request(app)
@@ -68,6 +85,7 @@ describe('GET - requests testing', () => {
                         comment_count: expect.any(String),
                     }))
                 })
+
         });
         test('Error 404 - for valid but non existend Id ', () => {
             return request(app)
@@ -92,6 +110,7 @@ describe('GET - requests testing', () => {
                 .get("/api/users")
                 .expect(200)
                 .then(({ body: { users } }) => {
+                    console.log('users', users)
                     users.forEach((user) => {
                         expect(user).toEqual(expect.objectContaining(
                             {

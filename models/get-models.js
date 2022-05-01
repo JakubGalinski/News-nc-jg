@@ -1,4 +1,12 @@
 const db = require("../db/connection.js")
+const fs = require('fs/promises');
+
+exports.fetchDocsAPI = () => {
+    return fs
+        .readFile(`${__dirname}/../endpoints.json`)
+        .then((JSONfile) => JSON.parse(JSONfile));
+
+}
 
 exports.fetchTopicsAll = () => {
     const str = `SELECT slug, description FROM topics;`;
